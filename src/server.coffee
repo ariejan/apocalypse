@@ -22,6 +22,7 @@ app.configure () ->
 # Define our 'metrics' collection
 # server, timestamp, key, value
 db.bind('metrics', {})
+db.metrics.ensureIndex({ hostid: 1 })
 
 # Parse YAML in the HTTP Post Body
 express.bodyParser.parse['text/yaml'] = (data) ->
@@ -32,7 +33,7 @@ express.bodyParser.parse['text/yaml'] = (data) ->
 app.post '/api/metrics/:hostid', (req, res) ->
   metrics = req.body.metrics
 
-  db.metrics.insert { hostid: req.params.hostid, metrics: metrics }, (err) ->
+  db.metrics.insert { hostid: req.params.hostid, created_at: new Date(), metrics: metrics }, (err) ->
     if (err)
       res.send { status: 'failed' }
     else
