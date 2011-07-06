@@ -26,15 +26,10 @@ db.metrics.ensureIndex { hostid: 1 }, (err) ->
   if (err)
     console.log(err)
 
-# Parse YAML in the HTTP Post Body
-# TODO: Yaml support no longer required. Remove this?
-express.bodyParser.parse['text/yaml'] = (data) ->
-  yaml.eval(data)
-
 # POST /api/metrics
 # Store recorded metrics data
 app.post '/api/metrics/:hostid', (req, res) ->
-  metrics = req.body.metrics
+  metrics = req.body
   createdAt = new Date()
 
   db.metrics.insert { hostid: req.params.hostid, created_at: createdAt, metrics: metrics }, (err) ->
