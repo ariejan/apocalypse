@@ -22,9 +22,12 @@ app.configure () ->
 # Define our 'metrics' collection
 # server, timestamp, key, value
 db.bind('metrics', {})
-db.metrics.ensureIndex({ hostid: 1 })
+db.metrics.ensureIndex { hostid: 1 }, (err) ->
+  if (err)
+    console.log(err)
 
 # Parse YAML in the HTTP Post Body
+# TODO: Yaml support no longer required. Remove this?
 express.bodyParser.parse['text/yaml'] = (data) ->
   yaml.eval(data)
 
@@ -32,8 +35,9 @@ express.bodyParser.parse['text/yaml'] = (data) ->
 # Store recorded metrics data
 app.post '/api/metrics/:hostid', (req, res) ->
   metrics = req.body.metrics
+  createdAt = new Date()
 
-  db.metrics.insert { hostid: req.params.hostid, created_at: new Date(), metrics: metrics }, (err) ->
+  db.metrics.insert { hostid: req.params.hostid, created_at: createdAt, metrics: metrics }, (err) ->
     if (err)
       res.send { status: 'failed' }
     else
