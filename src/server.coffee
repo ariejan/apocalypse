@@ -1,5 +1,5 @@
 # Configuration
-serverPort = process.env.PORT || 3000
+global.config = require('../config')
 
 # Require external libs, including
 # Express for HTTP and
@@ -87,5 +87,5 @@ app.post '/api/metrics/:hostid', (req, res) ->
   res.send { status: 'OK' }
 
 # Start the server / web API
-app.listen serverPort, () ->
-  console.log("-> Apocalypse ready on http://0.0.0.0:#{serverPort}")
+app.listen config.web.port, () ->
+  console.log("-> Apocalypse ready on http://0.0.0.0:#{config.web.port}")

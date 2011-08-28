@@ -5,11 +5,9 @@
 name = "Persistance worker"
 desc = "Store raw metrics in MongoDB"
 
-mongodbUrl = "mongo://localhost/apocalypse_dev"
-
 # Require external libs
 mongo    = require('mongoskin')
-db       = mongo.db(mongodbUrl)
+db       = mongo.db(config.mongodb.url)
 redis    = require("redis")
 client   = redis.createClient()
 
