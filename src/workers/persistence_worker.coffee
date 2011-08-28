@@ -27,7 +27,7 @@ client.on "error", (err) ->
 # Handle messages
 client.on "message", (channel, message) ->
   data = JSON.parse(message)
-  db.metrics.insert { data }, (err) ->
+  db.metrics.insert { hostid: data.hostid, created_at: data.created_at, metrics: data.metrics }, (err) ->
     if (err)
       console.log "!! Error persisting to MongoDB: #{erro}"
     else
