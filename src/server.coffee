@@ -1,13 +1,41 @@
 # Configuration
-mongodbUrl = "mongo://localhost/apocalypse_dev"
 serverPort = process.env.PORT || 3000
 
 # Require external libs
-yaml     = require('yaml')
+sys      = require('sys')
 express  = require('express')
 app      = express.createServer()
-mongo    = require('mongoskin')
-db       = mongo.db(mongodbUrl)
+
+
+############################################
+#### Redis
+############################################
+redis           = require("redis")
+client          = redis.createClient()
+
+# Handle redis errors gracefully
+client.on "ready", () ->
+  console.log "== Redis reporting for duty."
+
+client.on "error", (err) ->
+  console.log "!! Redis error: " + err
+
+
+############################################
+#### Worker plugins
+############################################
+
+workers = [
+  "persistence",
+  "cpu"
+]
+workers.forEach (worker) ->
+  require "./workers/#{worker}_worker"
+
+
+############################################
+#### Express / API
+############################################
 
 # Some Express setup
 app.configure () ->
@@ -19,24 +47,18 @@ app.configure () ->
     showStack: true
   )
 
-# Define our 'metrics' collection
-# server, timestamp, key, value
-db.bind('metrics', {})
-db.metrics.ensureIndex { hostid: 1 }, (err) ->
-  if (err)
-    console.log(err)
 
 # POST /api/metrics
 # Store recorded metrics data
 app.post '/api/metrics/:hostid', (req, res) ->
-  metrics = req.body
-  createdAt = new Date()
+  metric_data =
+    hostid:     req.params.hostid,
+    metrics:    req.body,
+    created_at: new Date()
 
-  db.metrics.insert { hostid: req.params.hostid, created_at: createdAt, metrics: metrics }, (err) ->
-    if (err)
-      res.send { status: 'failed' }
-    else
-      res.send { status: 'OK' }
+  client.publish "raw_metrics", JSON.stringify(metric_data)
+  res.send { status: 'OK' }
 
+# Start the server / web API
 app.listen serverPort, () ->
-  console.log("Apocalypse ready on http://0.0.0.0:#{serverPort}")
+  console.log("-> Apocalypse ready on http://0.0.0.0:#{serverPort}")
