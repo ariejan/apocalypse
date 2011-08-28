@@ -88,4 +88,4 @@ app.post '/api/metrics/:hostid', (req, res) ->
 
 # Start the server / web API
 app.listen config.web.port, () ->
-  console.log("-> Apocalypse ready on http://0.0.0.0:#{config.web.port}")
+  console.log("-> Apocalypse ready on http://#{config.web.hostname}:#{config.web.port}")
