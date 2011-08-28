@@ -1,0 +1,36 @@
+#alerts
+  .alert
+    p Apocalypse Monitor page opened.
+
+script
+  var elem = '#alerts';
+
+  var socket = io.connect('http://localhost');
+
+  $(document).ready(function() {
+
+    var logString = function(msg) {
+      $(elem).prepend("<div class='alert'>"+msg+"</div>");
+    };
+
+    var logAlert = function(alert) {
+      console.log(alert);
+      alert = JSON.parse(alert);
+      $(elem).prepend("<div class='alert'>["+alert.status+"] "+alert.hostid + " " + alert.type+"</div>");
+    };
+
+    socket.on('connect', function () {
+      console.log("Connected to server");
+      logString("Connected to server");
+    });
+
+    socket.on('message', function (data) {
+      logAlert(data);
+    });
+
+    socket.on('disconnect', function () {
+      logString("Disconnected from server.");
+    });
+
+    // socket.connect();
+  });

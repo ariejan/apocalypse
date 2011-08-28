@@ -24,7 +24,7 @@ client.on "error", (err) ->
 client.on "message", (channel, message) ->
   try
     # Get all the data we need
-    data = JSON.parse(message)
+    data     = JSON.parse(message)
     hostid   = data.hostid
     list     = "#{hostid}_cpu_avg"
     load_avg = parseFloat data.metrics.cpu.loadavg[0]
@@ -41,12 +41,12 @@ client.on "message", (channel, message) ->
       # Create the alert message
       alert_message = {
         hostid: hostid,
-        status: (score >= threshold_span ? "alert" : "ok"),
+        status: if score >= threshold_span then "alert" else "ok",
         type: "cpu_loadavg"
       }
 
       # Post the alert message to the alerts channel
-      data.client.publish "alerts", alert_message
+      data_client.publish "alerts", JSON.stringify(alert_message)
   catch error
     console.log "!! Error processing CPU data: #{error}"
 

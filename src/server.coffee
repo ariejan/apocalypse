@@ -1,10 +1,14 @@
 # Configuration
 serverPort = process.env.PORT || 3000
 
-# Require external libs
+# Require external libs, including
+# Express for HTTP and
+# socket.io for Websockets
 sys      = require('sys')
 express  = require('express')
+socketio = require('socket.io')
 app      = express.createServer()
+io       = socketio.listen(app)
 
 
 ############################################
@@ -12,6 +16,7 @@ app      = express.createServer()
 ############################################
 redis           = require("redis")
 client          = redis.createClient()
+io_client       = redis.createClient()
 
 # Handle redis errors gracefully
 client.on "ready", () ->
@@ -33,6 +38,23 @@ workers.forEach (worker) ->
   require "./workers/#{worker}_worker"
 
 
+
+############################################
+#### Websockets
+############################################
+
+# Join the "alerts" channel when connecting
+# with your websocket
+io.sockets.on "connection", (socket) ->
+  subscribe = redis.createClient()
+  subscribe.subscribe "alerts"
+
+  subscribe.on "message", (channel, message) ->
+    socket.send(message)
+
+  socket.on "disconnect", () ->
+    subscribe.quit()
+
 ############################################
 #### Express / API
 ############################################
@@ -46,7 +68,12 @@ app.configure () ->
     dumpExceptions: true,
     showStack: true
   )
+  app.set('view engine', 'jade');
 
+# GET /
+# Show the alerts dashboard
+app.get '/', (req, res) ->
+  res.render('index')
 
 # POST /api/metrics
 # Store recorded metrics data
