@@ -1,0 +1,13 @@
+body {
+  background-color: #efefef;
+}
+
+tr.server td.unknown {
+  background-color: #00f;
+  color: #fff;
+}
+
+tr.server td.ok {
+  background-color: #0f0;
+  color: #000;
+}

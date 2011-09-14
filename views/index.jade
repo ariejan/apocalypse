@@ -1,36 +1,53 @@
-#alerts
-  .alert
-    p Apocalypse Monitor page opened.
+p#connection_status Loading...
+
+table#dashboard
+  tr
+    th Server
+    th CPU
+    th Last updated
+  /*each hostid in hostids*/
+    /*tr.server(id=hostid.replace(/\./g,'-'))*/
+      /*td.hostid= hostid*/
+      /*td.cpu_loadavg.unknown -*/
+      /*td.last_updated -*/
+
 
 script
-  var elem = '#alerts';
-
   var socket = io.connect('http://#{config.web.hostname}');
 
   $(document).ready(function() {
 
-    var logString = function(msg) {
-      $(elem).prepend("<div class='alert'>"+msg+"</div>");
-    };
-
-    var logAlert = function(alert) {
+    var process_alert = function(alert) {
       console.log(alert);
       alert = JSON.parse(alert);
-      $(elem).prepend("<div class='alert'>["+alert.status+"] "+alert.hostid + " " + alert.type+"</div>");
+      last_update = new Date();
+
+      $('tr.server#'+alert.hostid_html+' td.'+alert.type).html(alert.last_value);
+
+      if (alert.status == "ok" ) {
+        $('tr.server#'+alert.hostid_html+' td.'+alert.type).addClass('ok');
+      } else {
+        $('tr.server#'+alert.hostid_html+' td.'+alert.type).removeClass('ok');
+      }
+
+      $('tr.server#'+alert.hostid_html+' td.last_updated').html(last_update.toString());
     };
 
     socket.on('connect', function () {
-      console.log("Connected to server");
-      logString("Connected to server");
+      $('#connection_status').html("Connected to Apocalypse Server.");
     });
 
     socket.on('message', function (data) {
-      logAlert(data);
+      data = JSON.parse(data);
+
+      if (data.message_type == "alert") {
+        process_alert(data);
+      } else {
+        process_hostid(data);
+      }
     });
 
     socket.on('disconnect', function () {
-      logString("Disconnected from server.");
+      $('#connection_status').html("Not connected to Apocalypse Server.");
     });
-
-    // socket.connect();
   });

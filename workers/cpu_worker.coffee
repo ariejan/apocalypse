@@ -42,7 +42,8 @@ client.on "message", (channel, message) ->
       alert_message = {
         hostid: hostid,
         status: if score >= threshold_span then "alert" else "ok",
-        type: "cpu_loadavg"
+        type: "cpu_loadavg",
+        last_value: load_avg
       }
 
       # Post the alert message to the alerts channel
