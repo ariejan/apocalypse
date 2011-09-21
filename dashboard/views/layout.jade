@@ -1,0 +1,16 @@
+!!! 5
+html(lang="en")
+  head
+    title Apocalypse Dashboard
+    link(rel="stylesheet", type="text/css", href="/stylesheets/apocalypse.css")
+    script(src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js")
+    script(src="/socket.io/socket.io.js")
+  body
+    .header
+      h1 Apocalypse Dashboard
+      #connection_status Not connected
+      .clear
+    .dashboard
+      != body
+    .footer
+      Apocalypse Dashboard – Copyright © 2011 Ariejan de Vroom / Kabisa ICT

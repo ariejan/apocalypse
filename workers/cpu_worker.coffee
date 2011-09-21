@@ -1,7 +1,9 @@
 # This worker analyses recent CPU usage and will
 # report the results to the alerts channel
 
-## Configuration
+# Configuration
+global.config = require('../config')
+
 name = "CPU Analyzer worker"
 desc = "Analyse CPU utilisation"
 
@@ -27,7 +29,7 @@ client.on "message", (channel, message) ->
     data     = JSON.parse(message)
     hostid   = data.hostid
     list     = "#{hostid}_cpu_avg"
-    load_avg = parseFloat data.metrics.cpu.loadavg[0]
+    load_avg = parseFloat data.load.cpu.loadavg[0]
 
     # Store the data in redis, trim the list
     data_client.lpush list, load_avg
@@ -39,20 +41,22 @@ client.on "message", (channel, message) ->
       score = (i for i in values when i >= threshold_value).length
 
       # Create the alert message
-      alert_message = {
-        hostid: hostid,
-        status: if score >= threshold_span then "alert" else "ok",
-        type: "cpu_loadavg",
+      alert_message = 
+        hostid: hostid
+        status: if score >= threshold_span then "alert" else "ok"
+        metric_type: "cpu"
+        type: 'status'
         last_value: load_avg
-      }
+
+      console.log "CPU Load for #{hostid}: #{load_avg}"
 
       # Post the alert message to the alerts channel
-      data_client.publish "alerts", JSON.stringify(alert_message)
+      data_client.publish "status", JSON.stringify(alert_message)
   catch error
     console.log "!! Error processing CPU data: #{error}"
 
 
 # Subscribe to the raw_metrics channel
-client.subscribe "raw_metrics"
+client.subscribe "metrics"
 
 console.log("== #{name} loaded.")

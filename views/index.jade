@@ -1,15 +1,15 @@
-p#connection_status Loading...
+p#connection_status Loading... this may take a while, depending on your browser. Use Safari for best results.
 
 table#dashboard
   tr
     th Server
     th CPU
     th Last updated
-  /*each hostid in hostids*/
-    /*tr.server(id=hostid.replace(/\./g,'-'))*/
-      /*td.hostid= hostid*/
-      /*td.cpu_loadavg.unknown -*/
-      /*td.last_updated -*/
+  each hostid in hostids
+    tr.server(id=hostid.replace(/\./g,'-'))
+      td.hostid= hostid
+      td.cpu_loadavg.unknown -
+      td.last_updated -
 
 
 script

@@ -1,7 +1,9 @@
 # This worker listens for incoming raw metrics and stores them in MongoDB for
 # possible later usage.
 
-## Configuration
+# Configuration
+global.config = require('../config')
+
 name = "Persistance worker"
 desc = "Store raw metrics in MongoDB"
 
@@ -32,6 +34,6 @@ client.on "message", (channel, message) ->
       console.log "-- Persisted raw data to MongoDB"
 
 # Subscribe to the raw_metrics channel
-client.subscribe "raw_metrics"
+client.subscribe "metrics"
 
 console.log("== #{name} loaded.")
