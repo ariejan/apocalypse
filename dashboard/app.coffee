@@ -43,6 +43,10 @@ update_metric = (websocket, hostid, metric) ->
   multi.get "host:#{hostid}:latest:#{metric}:status"
   multi.get "host:#{hostid}:latest:#{metric}:value"
 
+  if metric == "disk_usage"
+    multi.get "host:#{hostid}:latest:#{metric}:mount"
+    multi.get "host:#{hostid}:latest:#{metric}:device"
+
   multi.exec (err, replies) ->
     console.log(replies)
 
@@ -53,6 +57,10 @@ update_metric = (websocket, hostid, metric) ->
       status: replies[1],
       last_value: replies[2],
       updated_at: replies[0]
+
+    if metric == "disk_usage"
+      message['mount'] = replies[3]
+      message['device'] = replies[4]
 
     websocket.send(JSON.stringify(message))
 

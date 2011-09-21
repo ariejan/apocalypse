@@ -1,7 +1,11 @@
 var socket = io.connect('http://#{config.dashboard.hostname}');
 
 function time_ago_in_words(from) {
-  return distance_of_time_in_words(new Date().getTime(), from)
+  if (from != null) {
+    return distance_of_time_in_words(new Date().getTime(), from) + " ago"
+  } else {
+    return "-"
+  }
 }
 
 function distance_of_time_in_words(to, from) {
@@ -45,30 +49,52 @@ $(document).ready(function() {
       )
       .append($("<td>")
         .attr("class", "cpu unknown")
-        .text("-")
       )
       .append($("<td>")
         .attr("class", "memory unknown")
-        .text("-")
       )
       .append($("<td>")
-        .attr("class", "disk unknown")
-        .text("-")
+        .attr("class", "swap unknown")
+      )
+      .append($("<td>")
+        .attr("class", "disk_usage unknown")
       )
       .append($("<td>")
         .attr("class", "updated_at")
-        .text("-")
       )
     )
-
-    $.each(['cpu', 'memory', 'disk'], function(index, metric) {
-      try {
-        console.log(data.status[metric]['status']);
-        update_dom_status(data.hostid, metric, data.status[metric]['status'], data.status[metric]['value'], new Date(data.status.updated_at));
-      }
-      catch (err) { console.log(err); }
-    });
   };
+
+  var update_disk_usage_dom_status = function(hostid, status, value, mount, device, updated_at) {
+    parent_dom_id = '#hosts > tbody > tr#'+hostid_to_domid(hostid)+' td.disk_usage';
+    dom_id = '#hosts > tbody > tr#'+hostid_to_domid(hostid)+' td.disk_usage > span#'+device;
+
+    if (value == null) return;
+
+    the_text = '' + value + '% '+mount;
+    console.log(dom_id);
+    if ($(dom_id).length > 0) {
+      console.log("-- updating");
+      // update
+      // 30% /home
+      $(dom_id).html(the_text);
+      if (status == "alert") {
+        $(dom_id).removeClass("unknown").removeClass("ok").addClass("alert");
+      } else if (status == "ok") {
+        $(dom_id).removeClass("unknown").removeClass("alert").addClass("ok");
+      } else {
+        $(dom_id).removeClass("ok").removeClass("alert").addClass("unknown");
+      }
+    } else {
+      // create
+      console.log("-- creating");
+      $(parent_dom_id).append($('<span>')
+        .attr('id', device)
+        .attr('class', status)
+        .text(the_text)
+      );
+    }
+  }
 
   var update_dom_status = function(hostid, metric_type, status, value, updated_at) {
     dom_id = '#hosts > tbody > tr#'+hostid_to_domid(hostid)+' td.'+metric_type;
@@ -83,11 +109,16 @@ $(document).ready(function() {
     }
 
     dom_id = '#hosts > tbody > tr#'+hostid_to_domid(hostid)+' td.updated_at';
-    $(dom_id).html(time_ago_in_words(updated_at) + " ago");
+    $(dom_id).html(time_ago_in_words(updated_at));
   }
 
   var update_status = function(data) {
-    update_dom_status(data.hostid, data.metric_type, data.status, data.last_value, new Date());
+    if (data.metric_type == "disk_usage") {
+      // Handle different mount points correctly
+      update_disk_usage_dom_status(data.hostid, data.status, data.last_value, data.mount, data.device, data.updated_at);
+    } else {
+      update_dom_status(data.hostid, data.metric_type, data.status, data.last_value, data.updated_at);
+    }
   };
 
   socket.on('connect', function () {
@@ -97,10 +128,13 @@ $(document).ready(function() {
   socket.on('message', function (data) {
     data = JSON.parse(data);
 
+    // Host presence
     if (data.type == "host") {
       add_host(data);
+    // Clear hosts
     } else if (data.type == "clear") {
       clear_hosts();
+    // Status update for a specific metric
     } else if (data.type == "status") {
       update_status(data);
     }

@@ -35,6 +35,14 @@ status_client.on "message", (channel, message) ->
   console.log "Persisted host:#{data.hostid}:latest:#{data.metric_type}:status => #{data.status}"
   console.log "Persisted host:#{data.hostid}:latest:#{data.metric_type}:value => #{data.last_value}"
 
+  # Presist more for disk_usage
+  if data.mount
+    data_client.set "host:#{data.hostid}:latest:#{data.metric_type}:mount", data.mount
+    data_client.set "host:#{data.hostid}:latest:#{data.metric_type}:device", data.device
+    console.log "Persisted host:#{data.hostid}:latest:#{data.metric_type}:mount => #{data.mount}"
+    console.log "Persisted host:#{data.hostid}:latest:#{data.metric_type}:device => #{data.device}"
+
+
 # Subscribe to the status channel
 status_client.subscribe "status"
 
