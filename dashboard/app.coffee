@@ -36,40 +36,16 @@ client.on "error", (err) ->
 clear_hosts = (websocket) ->
   websocket.send(JSON.stringify(type: 'clear'))
 
-# Update a specific metric for a specific hostid
-update_metric = (websocket, hostid, metric) ->
-  multi = client.multi()
-  multi.get "host:#{hostid}:latest:#{metric}:updated_at"
-  multi.get "host:#{hostid}:latest:#{metric}:status"
-  multi.get "host:#{hostid}:latest:#{metric}:value"
-
-  if metric == "disk_usage"
-    multi.get "host:#{hostid}:latest:#{metric}:mount"
-    multi.get "host:#{hostid}:latest:#{metric}:device"
-
-  multi.exec (err, replies) ->
-    console.log(replies)
-
-    message =
-      hostid: hostid,
-      type: 'status',
-      metric_type: metric,
-      status: replies[1],
-      last_value: replies[2],
-      updated_at: replies[0]
-
-    if metric == "disk_usage"
-      message['mount'] = replies[3]
-      message['device'] = replies[4]
-
-    websocket.send(JSON.stringify(message))
-
+# Update all metrics for a specific host
+update_metrics_for_hostid = (websocket, hostid) ->
+  client.hvals "host:#{hostid}:messages", (err, messages) ->
+    for message in messages
+      websocket.send(message)
 
 # Send a host update
 update_host = (websocket, hostid) ->
   websocket.send(JSON.stringify(type: 'host', hostid: hostid))
-  for metric in config.metrics
-    update_metric(websocket, hostid, metric)
+  update_metrics_for_hostid(websocket, hostid)
 
 # Join the "alerts" channel when connecting
 # with your websocket

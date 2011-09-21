@@ -71,12 +71,11 @@ $(document).ready(function() {
 
     if (value == null) return;
 
+    // 43% /home
     the_text = '' + value + '% '+mount;
-    console.log(dom_id);
+
     if ($(dom_id).length > 0) {
-      console.log("-- updating");
       // update
-      // 30% /home
       $(dom_id).html(the_text);
       if (status == "alert") {
         $(dom_id).removeClass("unknown").removeClass("ok").addClass("alert");
@@ -87,7 +86,6 @@ $(document).ready(function() {
       }
     } else {
       // create
-      console.log("-- creating");
       $(parent_dom_id).append($('<span>')
         .attr('id', device)
         .attr('class', status)

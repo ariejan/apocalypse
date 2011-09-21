@@ -43,6 +43,7 @@ client.on "message", (channel, message) ->
       # Create the alert message
       alert_message = 
         hostid: hostid
+        message_id: "cpu"
         status: if score >= threshold_span then "alert" else "ok"
         metric_type: "cpu"
         type: 'status'

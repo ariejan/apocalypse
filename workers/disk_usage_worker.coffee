@@ -38,6 +38,7 @@ client.on "message", (channel, message) ->
           # Create the alert message
           alert_message =
             hostid: hostid
+            message_id: "disk_usage_#{device}"
             status: if disk_usage >= threshold_value then "alert" else "ok"
             metric_type: "disk_usage"
             type: 'status'

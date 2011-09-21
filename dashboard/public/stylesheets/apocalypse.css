@@ -50,6 +50,16 @@ table#hosts td {
   border-bottom: 1px solid #191919;
 }
 
+table#hosts td.disk_usage {
+  padding: 0;
+}
+
+table#hosts td.disk_usage span {
+  text-align: center;
+  padding: 2px;
+  display: block;
+}
+
 table#hosts th {
   font-weight: bold;
   text-align: center;
@@ -61,17 +71,20 @@ table#hosts td.hostid {
   text-align: left;
 }
 
-table#hosts td.unknown {
+table#hosts td.unknown,
+table#hosts td.disk_usage span.unknown {
   background-color: #4e4e00;
   color: #9f9f9f;
 }
 
-table#hosts td.ok {
+table#hosts td.ok,
+table#hosts td.disk_usage span.ok {
   background-color: #30c230;
   color: #000;
 }
 
-table#hosts td.alert {
+table#hosts td.alert,
+table#hosts td.disk_usage span.alert {
   background-color: #c23030;
   color: #fff;
 }
