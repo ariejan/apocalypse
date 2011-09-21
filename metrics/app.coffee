@@ -30,7 +30,6 @@ client.on "error", (err) ->
   console.log "Metrics server could not connect to redis: " + err
 
 
-
 ############################################
 #### Express / API
 ############################################
@@ -56,17 +55,23 @@ app.get '/', (req, res) ->
 # Store recorded metrics data
 app.post '/api/metrics/:hostid', (req, res) ->
   metric_data =
-    hostid:     req.params.hostid,
-    type:       'metrics',
-    load:       req.body,
+    hostid:     req.params.hostid
+    type:       'metrics'
+    load:       req.body
     created_at: new Date()
-
-  # TODO: Is this still needed? We persist to MongoDB
-  # Add this hostid to our set of hostids
-  # client.sadd "hostids", req.params.hostid
 
   # Post raw metrics to redis for further processing
   client.publish "metrics", JSON.stringify(metric_data)
+
+  updated_at_message =
+    hostid: req.params.hostid
+    message_id: "updated_at"
+    status: "ok"
+    metric_type: "updated_at"
+    type: 'status'
+    last_value: new Date()
+
+  client.publish "status", JSON.stringify(updated_at_message)
 
   # Say thank-you to the client
   res.send { status: 'OK' }

@@ -9,7 +9,11 @@ function time_ago_in_words(from) {
 }
 
 function distance_of_time_in_words(to, from) {
+  console.log('t: '+to);
+  console.log('f: '+from);
+  console.log('d: '+(to-from));
   seconds_ago = ((to  - from) / 1000);
+  console.log('s: '+seconds_ago);
   minutes_ago = Math.floor(seconds_ago / 60)
 
   if(minutes_ago == 0) { return "less than a minute";}
@@ -60,7 +64,7 @@ $(document).ready(function() {
         .attr("class", "disk_usage unknown")
       )
       .append($("<td>")
-        .attr("class", "updated_at")
+        .attr("class", "updated_at unknown")
       )
     )
   };
@@ -105,15 +109,14 @@ $(document).ready(function() {
     } else {
       $(dom_id).removeClass("ok").removeClass("alert").addClass("unknown");
     }
-
-    dom_id = '#hosts > tbody > tr#'+hostid_to_domid(hostid)+' td.updated_at';
-    $(dom_id).html(time_ago_in_words(updated_at));
   }
 
   var update_status = function(data) {
     if (data.metric_type == "disk_usage") {
       // Handle different mount points correctly
       update_disk_usage_dom_status(data.hostid, data.status, data.last_value, data.mount, data.device, data.updated_at);
+    } else if (data.metric_type == "updated_at") {
+      update_dom_status(data.hostid, data.metric_type, data.status, time_ago_in_words(new Date(data.last_value).getTime()), data.updated_at);
     } else {
       update_dom_status(data.hostid, data.metric_type, data.status, data.last_value, data.updated_at);
     }

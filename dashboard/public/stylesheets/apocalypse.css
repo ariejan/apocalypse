@@ -40,7 +40,7 @@ html, body {
 }
 
 table#hosts {
-  width: 100%;
+  width: 95%;
   margin: 10px 25px;
 }
 
@@ -73,7 +73,7 @@ table#hosts td.hostid {
 
 table#hosts td.unknown,
 table#hosts td.disk_usage span.unknown {
-  background-color: #4e4e00;
+  background-color: #ffd322;
   color: #9f9f9f;
 }
 
