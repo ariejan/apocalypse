@@ -9,11 +9,8 @@ function time_ago_in_words(from) {
 }
 
 function distance_of_time_in_words(to, from) {
-  console.log('t: '+to);
-  console.log('f: '+from);
-  console.log('d: '+(to-from));
   seconds_ago = ((to  - from) / 1000);
-  console.log('s: '+seconds_ago);
+  if (seconds_ago < 0) seconds_ago = 0;
   minutes_ago = Math.floor(seconds_ago / 60)
 
   if(minutes_ago == 0) { return "less than a minute";}
