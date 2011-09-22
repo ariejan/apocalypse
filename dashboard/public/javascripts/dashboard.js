@@ -10,10 +10,16 @@ function time_ago_in_words(from) {
 
 function distance_of_time_in_words(to, from) {
   seconds_ago = ((to  - from) / 1000);
+
+  // Make sure we don't show negative times, it's stupid
   if (seconds_ago < 0) seconds_ago = 0;
+
+  // Seconds-precision
+  if(seconds_ago < 1) { return "about a second"; }
+  if(seconds_ago < 60) { return "about " + Math.round(seconds_ago) + " seconds"; }
+
   minutes_ago = Math.floor(seconds_ago / 60)
 
-  if(minutes_ago == 0) { return "less than a minute";}
   if(minutes_ago == 1) { return "a minute";}
   if(minutes_ago < 45) { return minutes_ago + " minutes";}
   if(minutes_ago < 90) { return " about 1 hour";}
