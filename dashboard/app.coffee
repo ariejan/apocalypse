@@ -85,6 +85,7 @@ app.configure () ->
     dumpExceptions: true,
     showStack: true
   )
+  app.use require('connect-assets')(src: __dirname + '/assets')
 
 # GET /
 # Show the alerts dashboard
