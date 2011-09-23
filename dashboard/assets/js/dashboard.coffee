@@ -100,6 +100,13 @@ $ ->
 
   update_dom_status = (hostid, metric_type, status, value, updated_at) ->
     dom_id = '#hosts > tbody > tr#'+hostid_to_domid(hostid)+' td.'+metric_type
+
+    # Do some special stuff for updated_at times
+    if metric_type == "updated_at"
+      $(dom_id).data('updated-at', new Date(value).getTime())
+      value = time_ago_in_words(new Date(value).getTime())
+
+    # Set current value
     $(dom_id).html(value)
 
     if (status == "alert")
@@ -113,8 +120,6 @@ $ ->
     if (data.metric_type == "disk_usage")
       # Handle different mount points correctly
       update_disk_usage_dom_status(data.hostid, data.status, data.last_value, data.mount, data.device, data.updated_at)
-    else if (data.metric_type == "updated_at")
-      update_dom_status(data.hostid, data.metric_type, data.status, time_ago_in_words(new Date(data.last_value).getTime()), data.updated_at)
     else
       update_dom_status(data.hostid, data.metric_type, data.status, data.last_value, data.updated_at)
 
@@ -136,3 +141,14 @@ $ ->
 
   socket.on 'disconnect', () ->
     $('#connection_status').html("Not connected to Apocalypse Server.")
+
+  ## Auto updates the updated-at times
+  tick = () ->
+    dom_id = '#hosts td.updated_at'
+
+    $(dom_id).each (i, elem) ->
+      if $(elem).data('updated-at')
+        $(elem).html(distance_of_time_in_words(new Date().getTime(), $(elem).data('updated-at')) + " ago")
+    setTimeout(tick, 2000)
+
+  tick()
