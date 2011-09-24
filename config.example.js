@@ -6,6 +6,10 @@ config.dashboard = {};
 
 config.metrics = ['cpu','memory','swap','disk_usage']
 
+// HTTP Authentication credentials to be used by the clients
+config.metrics.username = "example"
+config.metrics.password = "example"
+
 // config.mongodb.url = process.env.MONGODB_URL || "mongo://localhost/apocalypse_dev"
 
 config.dashboard.port = process.env.WEB_PORT || 3000;
