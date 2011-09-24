@@ -29,6 +29,19 @@ client.on "ready", () ->
 client.on "error", (err) ->
   console.log "Metrics server could not connect to redis: " + err
 
+############################################
+#### HTTP Authentication
+############################################
+authorize_for_host = (req, res, next) ->
+  if req.headers.authorization and req.headers.authorization.search('Basic ') == 0
+    buffer  = new Buffer(req.headers.authorization.split(' ')[1], 'base64').toString()
+    auth    = "#{config.metrics.username}:#{config.metrics.password}"
+    if buffer == auth
+      next()
+    else
+      res.header 'WWW-Authenticate', 'Basic realm="Apocalypse Metrics Server"'
+      res.send('Authentication required', 401)
+  return
 
 ############################################
 #### Express / API
@@ -53,16 +66,16 @@ app.get '/', (req, res) ->
 
 # POST /api/metrics
 # Store recorded metrics data
-app.post '/api/metrics/:hostid', (req, res) ->
+app.post '/api/metrics/:hostid', authorize_for_host, (req, res) ->
   metric_data =
     hostid:     req.params.hostid
     type:       'metrics'
     load:       req.body
     created_at: new Date()
-
+  
   # Post raw metrics to redis for further processing
   client.publish "metrics", JSON.stringify(metric_data)
-
+  
   updated_at_message =
     hostid: req.params.hostid
     message_id: "updated_at"
@@ -70,7 +83,7 @@ app.post '/api/metrics/:hostid', (req, res) ->
     metric_type: "updated_at"
     type: 'status'
     last_value: new Date()
-
+  
   client.publish "status", JSON.stringify(updated_at_message)
 
   # Say thank-you to the client
