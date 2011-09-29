@@ -1,6 +1,5 @@
 var config = {};
 
-config.mongodb = {};
 config.metrics = {};
 config.dashboard = {};
 
