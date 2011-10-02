@@ -6,11 +6,10 @@ html(lang="en")
     script(src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js")
     script(src="/socket.io/socket.io.js")
   body
-    .header
+    header(role="banner")
       h1 Apocalypse Dashboard
-      #connection_status Not connected
-      .clear
-    .dashboard
+      #connection_status
+        span Not connected
+    article(role="main")
       != body
-    .footer
-      Apocalypse Dashboard – Copyright © 2011 Ariejan de Vroom / Kabisa ICT
+    footer(role="contentinfo") Apocalypse Dashboard – Copyright © 2011 Ariejan de Vroom / Kabisa ICT
