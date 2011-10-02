@@ -13,7 +13,8 @@
     "jade" : ">= 0.15.2",
     "markdown" : ">= 0.2.1",
     "connect-assets" : ">= 2.0.0-rc1",
-    "coffee-script" : ">= 1.1.1"
+    "coffee-script" : ">= 1.1.1",
+    "underscore" : ">= 1.1.7"    
   },
   "devDependencies" : {
     "vows" : "0.5.8",

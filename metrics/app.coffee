@@ -13,8 +13,8 @@ global.config = require('../config')
 # socket.io for Websockets
 sys      = require('sys')
 express  = require('express')
+_        = require('underscore')
 app      = express.createServer()
-
 
 ############################################
 #### Redis
@@ -35,13 +35,31 @@ client.on "error", (err) ->
 authorize_for_host = (req, res, next) ->
   if req.headers.authorization and req.headers.authorization.search('Basic ') == 0
     buffer  = new Buffer(req.headers.authorization.split(' ')[1], 'base64').toString()
-    auth    = "#{config.metrics.username}:#{config.metrics.password}"
+    auth    = "#{config.metrics.username}"
+    if config.metrics.password
+      auth  += ":#{config.metrics.password}"
+      
     if buffer == auth
       next()
     else
       res.header 'WWW-Authenticate', 'Basic realm="Apocalypse Metrics Server"'
       res.send('Authentication required', 401)
   return
+
+############################################
+#### Version Check for client information
+############################################
+client_up_to_date = (body) ->
+  client_version = body.client.version.split(/\./);
+  latest_version = config.client.latest_version.split(/\./); 
+  index          = 0;
+  return _.all client_version, (val) ->
+    return parseInt(val) >= (parseInt(latest_version[index++]) || 0)
+
+response_body = (body) -> 
+  if !client_up_to_date(body)
+    return {"code": RESULT_CLIENT_OUTDATED}
+  return {"code": RESULT_OK}
 
 ############################################
 #### Express / API
@@ -66,7 +84,7 @@ app.get '/', (req, res) ->
 
 # POST /api/metrics
 # Store recorded metrics data
-app.post '/api/metrics/:hostid', authorize_for_host, (req, res) ->
+app.post '/api/metrics/:hostid', (req, res) ->
   metric_data =
     hostid:     req.params.hostid
     type:       'metrics'
@@ -87,7 +105,7 @@ app.post '/api/metrics/:hostid', authorize_for_host, (req, res) ->
   client.publish "status", JSON.stringify(updated_at_message)
 
   # Say thank-you to the client
-  res.send { status: 'OK' }
+  res.send response_body(req.body)
 
 # Start the server / web API
 app.listen config.metrics.port, () ->
