@@ -35,9 +35,7 @@ client.on "error", (err) ->
 authorize_for_host = (req, res, next) ->
   if req.headers.authorization and req.headers.authorization.search('Basic ') == 0
     buffer  = new Buffer(req.headers.authorization.split(' ')[1], 'base64').toString()
-    auth    = "#{config.metrics.username}"
-    if config.metrics.password
-      auth  += ":#{config.metrics.password}"
+    auth    = "#{config.metrics.username}:#{config.metrics.password}"
       
     if buffer == auth
       next()
@@ -84,7 +82,7 @@ app.get '/', (req, res) ->
 
 # POST /api/metrics
 # Store recorded metrics data
-app.post '/api/metrics/:hostid', (req, res) ->
+app.post '/api/metrics/:hostid', authorize_for_host, (req, res) ->
   metric_data =
     hostid:     req.params.hostid
     type:       'metrics'
