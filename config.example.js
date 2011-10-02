@@ -18,3 +18,7 @@ config.metrics.hostname = "localhost";
 module.exports = config;
 
 config.client.latest_version = "0.0.3"
+
+// Result codes for clients
+RESULT_OK               = 0
+RESULT_CLIENT_OUTDATED  = 1001
