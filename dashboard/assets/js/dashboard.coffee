@@ -124,7 +124,7 @@ $ ->
       update_dom_status(data.hostid, data.metric_type, data.status, data.last_value, data.updated_at)
 
   socket.on 'connect', () ->
-    $('#connection_status').html("Connected to Apocalypse Server.")
+    $('#connection_status span').html("Connected to Apocalypse Server.")
 
   socket.on 'message', (data) ->
     data = JSON.parse(data)
@@ -140,7 +140,7 @@ $ ->
       update_status(data)
 
   socket.on 'disconnect', () ->
-    $('#connection_status').html("Not connected to Apocalypse Server.")
+    $('#connection_status span').html("Not connected to Apocalypse Server.")
 
   ## Auto updates the updated-at times
   tick = () ->
