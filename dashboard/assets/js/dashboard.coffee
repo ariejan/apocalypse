@@ -65,6 +65,7 @@ $ ->
       .append $("<tr>")
         .attr("id", hostid_to_domid(data.hostid))
         .append($("<td>").attr("class", "hostid").text(data.hostid))
+        .append($("<td>").attr("class", "latency unknown"))
         .append($("<td>").attr("class", "cpu unknown"))
         .append($("<td>").attr("class", "memory unknown"))
         .append($("<td>").attr("class", "swap unknown"))

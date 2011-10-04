@@ -69,10 +69,23 @@ checkNextHost = () ->
     if host_id
       console.log("Checking reachability on #{host_id}")
       ping 3, host_id, (data) ->
+        last_value = "!"
         if data.success
-          console.log "OK - avg #{data.data.avg}ms"
-        else
-          console.log "NOT OK - #{data.errmsg}"
+          last_value = "#{data.data.avg}ms"
+
+        # Create the alert message
+        alert_message =
+          hostid: host_id
+          message_id: "latency"
+          status: if data.success then "ok" else "alert"
+          metric_type: "latency"
+          type: 'status'
+          last_value: last_value
+
+        console.log "Latency for #{host_id}: #{last_value}"
+
+        # Post the alert message to the alerts channel
+        client.publish "status", JSON.stringify(alert_message)
 
         # Update reachability score
         client.zadd redis_key, new Date().getTime(), host_id
