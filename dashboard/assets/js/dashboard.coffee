@@ -3,56 +3,38 @@ $ ->
 
   time_ago_in_words = (from) ->
     if from != null
-      return distance_of_time_in_words(new Date().getTime(), from) + " ago"
+      return distance_of_time_in_words(new Date().getTime(), from)
     else
       return "-"
 
   distance_of_time_in_words = (to, from) ->
-    seconds_ago = ((to  - from) / 1000)
+    seconds = ((to  - from) / 1000)
 
     # Make sure we don't show negative times, it's stupid
-    if seconds_ago < 0
-      seconds_ago = 0
+    if seconds < 0
+      seconds = 0
 
-    # Seconds-precision
-    if seconds_ago < 1
-      return "about a second"
-    if seconds_ago < 60
-      return "about " + Math.round(seconds_ago) + " seconds"
+    if seconds == 0
+      return "now"
+    else
+      result = ""
 
-    minutes_ago = Math.floor(seconds_ago / 60)
+      d = Math.floor(seconds / 86400)
+      seconds -= d * 86400
+      result += "#{d}d" unless d == 0
 
-    if minutes_ago == 1
-      return "a minute"
-    if minutes_ago < 45
-      return minutes_ago + " minutes"
-    if minutes_ago < 90
-      return " about 1 hour"
+      h = Math.floor(seconds / 3600)
+      seconds -= h * 3600
+      result += "#{h}h" unless h == 0
 
-    hours_ago = Math.round(minutes_ago / 60)
+      m = Math.floor(seconds / 60)
+      seconds -= m * 60
+      result += "#{m}m" unless m == 0
 
-    if minutes_ago < 1440
-      return "about " + hours_ago + " hours"
-    if minutes_ago < 2880
-      return "1 day"
+      s = Math.floor(seconds)
+      result += "#{s}s" unless s == 0
 
-    days_ago = Math.round(minutes_ago / 1440)
 
-    if minutes_ago < 43200
-      return days_ago + " days"
-    if minutes_ago < 86400
-      return "about 1 month"
-
-    months_ago = Math.round(minutes_ago / 43200)
-
-    if minutes_ago < 525960
-      return months_ago + " months"
-    if minutes_ago < 1051920
-      return "about 1 year"
-
-    years_ago = Math.round(minutes_ago / 525960)
-
-    return "over " + years_ago + " years"
 
   hostid_to_domid = (hostid) ->
     return hostid.replace(/\./g, "-")
@@ -149,7 +131,7 @@ $ ->
 
     $(dom_id).each (i, elem) ->
       if $(elem).data('updated-at')
-        $(elem).html(distance_of_time_in_words(new Date().getTime(), $(elem).data('updated-at')) + " ago")
+        $(elem).html(distance_of_time_in_words(new Date().getTime(), $(elem).data('updated-at')))
     setTimeout(tick, 2000)
 
   tick()

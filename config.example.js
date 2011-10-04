@@ -13,7 +13,11 @@ config.metrics.hostname = "localhost";
 
 // Reachability interval
 config.reachability = {};
-config.reachability.interval = 2000 // ms
+// How often to kick-off the reachability check
+config.reachability.delay = 5000 // ms
+
+// Only check every X seconds per host
+config.reachability.frequency = 30 // sec
 
 // Client configuration
 config.client     = {};
