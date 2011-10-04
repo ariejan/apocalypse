@@ -88,10 +88,10 @@ app.post '/api/metrics/:hostid', authorize_for_host, (req, res) ->
     type:       'metrics'
     load:       req.body
     created_at: new Date()
-  
+
   # Post raw metrics to redis for further processing
   client.publish "metrics", JSON.stringify(metric_data)
-  
+
   updated_at_message =
     hostid: req.params.hostid
     message_id: "updated_at"
@@ -99,8 +99,13 @@ app.post '/api/metrics/:hostid', authorize_for_host, (req, res) ->
     metric_type: "updated_at"
     type: 'status'
     last_value: new Date()
-  
+
+  # Post a last_updated message to the status channel
   client.publish "status", JSON.stringify(updated_at_message)
+
+  # Since we heard from the client, we assume it's up. Update
+  # the reachability score
+  client.zadd "reachability", new Date().getTime(), req.params.hostid
 
   # Say thank-you to the client
   res.send response_body(req.body)
