@@ -36,7 +36,7 @@ authorize_for_host = (req, res, next) ->
   if req.headers.authorization and req.headers.authorization.search('Basic ') == 0
     buffer  = new Buffer(req.headers.authorization.split(' ')[1], 'base64').toString()
     auth    = "#{config.metrics.username}:#{config.metrics.password}"
-      
+
     if buffer == auth
       next()
     else
@@ -83,8 +83,10 @@ app.get '/', (req, res) ->
 # POST /api/metrics
 # Store recorded metrics data
 app.post '/api/metrics/:hostid', authorize_for_host, (req, res) ->
+  host_id = req.params.hostid
+
   metric_data =
-    hostid:     req.params.hostid
+    hostid:     host_id
     type:       'metrics'
     load:       req.body
     created_at: new Date()
@@ -93,7 +95,7 @@ app.post '/api/metrics/:hostid', authorize_for_host, (req, res) ->
   client.publish "metrics", JSON.stringify(metric_data)
 
   updated_at_message =
-    hostid: req.params.hostid
+    hostid: host_id
     message_id: "updated_at"
     status: "ok"
     metric_type: "updated_at"
@@ -102,6 +104,13 @@ app.post '/api/metrics/:hostid', authorize_for_host, (req, res) ->
 
   # Post a last_updated message to the status channel
   client.publish "status", JSON.stringify(updated_at_message)
+
+  client.sismember 'hostids', host_id, (err, data) ->
+    # Add this host *now*
+    if data == 0
+      console.log "First update from this host; storing host_id: #{host_id}"
+      client.sadd "hostids", host_id
+      client.publish "status", JSON.stringify(type: 'host', hostid: host_id)
 
   # Since we heard from the client, we assume it's up. Update
   # the reachability score
