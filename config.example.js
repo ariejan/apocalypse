@@ -21,7 +21,7 @@ config.reachability.frequency = 30 // sec
 
 // Client configuration
 config.client     = {};
-config.client.latest_version = "0.0.3"
+config.client.latest_version = "0.0.4"
 
 // Result codes for clients
 RESULT_OK               = 0
