@@ -44,7 +44,6 @@ update_metrics_for_hostid = (websocket, hostid) ->
 
 # Send a host update
 update_host = (websocket, hostid) ->
-  # websocket.send(JSON.stringify(type: 'host', hostid: hostid))
   update_metrics_for_hostid(websocket, hostid)
 
 # Join the "alerts" channel when connecting
